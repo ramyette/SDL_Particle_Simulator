@@ -12,7 +12,7 @@
 #define TARGET_FPS 240
 #define FRAME_TIME_MS (1000 / TARGET_FPS)
 
-#define PARTICLE_COUNT 10000
+#define PARTICLE_COUNT 5000
 #define PARTICLE_DAMPING 0.5f
 
 #define MOUSE_MAX_SPEED 1000.0
@@ -66,9 +66,12 @@ int main(int argc, char* argv[])
         particles[i].y = (rand() % (HEIGHT - 1)) + 1;
         particles[i].vx = min_v + ((float)rand()) / (RAND_MAX + 1.0) * (max_v - min_v);
         particles[i].vy = min_v + ((float)rand()) / (RAND_MAX + 1.0) * (max_v - min_v);
-        particles[i].r = rand() % 256;
-        particles[i].g = rand() % 256;
-        particles[i].b = rand() % 256;
+        //particles[i].r = rand() % 256;
+        //particles[i].g = rand() % 256;
+        //particles[i].b = rand() % 256;
+        particles[i].r = 0;
+        particles[i].g = 255;
+        particles[i].b = 100;
     }
 
     // Mouse input variables
@@ -149,6 +152,17 @@ int main(int argc, char* argv[])
         // Update
         for (int i = 0; i < PARTICLE_COUNT; i++)
         {
+            for (int j = 0; j < PARTICLE_COUNT; j++)
+            {
+                if (i == j) continue;
+                float dx = particles[j].x - particles[i].x;
+                float dy = particles[j].y - particles[i].y;
+                float distance = SDL_sqrt((dx * dx) + (dy * dy));
+                if (distance < 1.0f) distance = 1.0f;
+                float force = -1000.0f / (distance * distance);
+                particles[i].vx += (dx / distance) * force * dt;
+                particles[i].vy += (dy / distance) * force * dt;
+            }
             if (mouse_down)
             {
                 float dx = mouse_x - particles[i].x;
